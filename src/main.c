@@ -45,22 +45,24 @@ int main(int argc, char **argv) {
   // Load ambient occlusion shader
   Shader aoShader = {0};
   bool shaderLoaded = false;
-  
+
   if (modelLoaded) {
     aoShader = LoadShader("shaders/ao.vs", "shaders/ao.fs");
-    
+
     if (aoShader.id > 0) {
       shaderLoaded = true;
-      
+
       // Apply shader to all materials
       for (int i = 0; i < model.materialCount; i++) {
         model.materials[i].shader = aoShader;
       }
-      
+
       // Get shader locations
-      aoShader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(aoShader, "viewPos");
-      aoShader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(aoShader, "matModel");
-      
+      aoShader.locs[SHADER_LOC_VECTOR_VIEW] =
+          GetShaderLocation(aoShader, "viewPos");
+      aoShader.locs[SHADER_LOC_MATRIX_MODEL] =
+          GetShaderLocation(aoShader, "matModel");
+
       printf("Ambient Occlusion shader loaded successfully!\n");
     } else {
       printf("WARNING: Failed to load AO shader, using default rendering\n");
@@ -75,27 +77,29 @@ int main(int argc, char **argv) {
     if (modelLoaded) {
       if (IsKeyPressed(KEY_F))
         ToggleFullscreen();
-      
+
       if (IsKeyPressed(KEY_R)) {
         camera.position = (Vector3){5.0f, 5.0f, 5.0f};
         camera.target = (Vector3){0.0f, 0.0f, 0.0f};
         modelScale = 1.0f;
       }
-      
+
       if (IsKeyPressed(KEY_G))
         showGrid = !showGrid;
-      
+
       if (IsKeyPressed(KEY_EQUAL) || IsKeyPressed(KEY_KP_ADD))
         modelScale += 0.1f;
       if (IsKeyPressed(KEY_MINUS) || IsKeyPressed(KEY_KP_SUBTRACT))
         modelScale = (modelScale > 0.1f) ? modelScale - 0.1f : 0.1f;
 
       UpdateCamera(&camera, CAMERA_ORBITAL);
-      
+
       // Update shader with camera position
       if (shaderLoaded) {
-        float cameraPos[3] = { camera.position.x, camera.position.y, camera.position.z };
-        SetShaderValue(aoShader, aoShader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos, SHADER_UNIFORM_VEC3);
+        float cameraPos[3] = {camera.position.x, camera.position.y,
+                              camera.position.z};
+        SetShaderValue(aoShader, aoShader.locs[SHADER_LOC_VECTOR_VIEW],
+                       cameraPos, SHADER_UNIFORM_VEC3);
       }
     }
 
@@ -107,7 +111,7 @@ int main(int argc, char **argv) {
       BeginMode3D(camera);
 
       DrawModel(model, (Vector3){0.0f, 0.0f, 0.0f}, modelScale, WHITE);
-      
+
       if (showGrid)
         DrawGrid(10, 1.0f);
 
@@ -115,7 +119,7 @@ int main(int argc, char **argv) {
 
       // UI
       DrawText(filename, 10, 10, 20, ORANGE);
-      DrawText(shaderLoaded ? "AO Shader: ON" : "AO Shader: FAILED", 10, 35, 12, 
+      DrawText(shaderLoaded ? "AO Shader: ON" : "AO Shader: FAILED", 10, 35, 12,
                shaderLoaded ? GREEN : RED);
       DrawText("Controls:", 10, 55, 12, LIGHTGRAY);
       DrawText("  Scroll: Zoom", 10, 70, 10, LIGHTGRAY);
@@ -123,16 +127,16 @@ int main(int argc, char **argv) {
       DrawText("  R: Reset view", 10, 100, 10, LIGHTGRAY);
       DrawText("  G: Toggle grid", 10, 115, 10, LIGHTGRAY);
       DrawText("  F: Fullscreen", 10, 130, 10, LIGHTGRAY);
-      
+
       DrawText(TextFormat("Scale: %.1f", modelScale), 10, 155, 10, YELLOW);
-      
+
     } else {
       DrawText("Failed to load model!", 10, 10, 24, RED);
       DrawText(argv[1], 10, 40, 12, WHITE);
       DrawText("Supported formats: .obj, .gltf, .glb, .iqm, .vox", 10, 60, 12,
                LIGHTGRAY);
     }
-    
+
     DrawFPS(10, GetScreenHeight() - 25);
 
     EndDrawing();
